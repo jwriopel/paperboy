@@ -85,9 +85,9 @@ func GetItems(source Source) ([]Item, error) {
 }
 
 // GetAll concurrently requests items from multiple sources.
-func GetAll(sources []Source) (out chan Item) {
+func GetAll(sources []Source) chan Item {
 	var wg sync.WaitGroup
-
+	out := make(chan Item)
 	sourceSink := func(source Source) {
 		items, err := GetItems(source)
 		if err != nil {
@@ -107,7 +107,6 @@ func GetAll(sources []Source) (out chan Item) {
 
 	go func() {
 		wg.Wait()
-		logger.Infof("Closing out chan.")
 		close(out)
 	}()
 
