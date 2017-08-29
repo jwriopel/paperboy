@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/google/logger"
 	"github.com/jwriopel/paperboy"
-	"golang.org/x/net/html"
 	"golang.org/x/net/websocket"
 	"io"
 	"strings"
@@ -12,19 +11,6 @@ import (
 
 var sentItems map[string]paperboy.Item
 var cmdMap map[string]func([]string) string
-
-// RedditConverter naively converts relative reddit paths to URLs.
-func RedditConverter(matches []*html.Node) []paperboy.Item {
-	cleanedItems := make([]paperboy.Item, 0)
-	items := paperboy.AnchorConverter(matches)
-	for _, item := range items {
-		if !strings.HasPrefix(item.Url, "http") {
-			item.Url = "https://reddit.com" + item.Url
-		}
-		cleanedItems = append(cleanedItems, item)
-	}
-	return cleanedItems
-}
 
 func main() {
 	sentItems = make(map[string]paperboy.Item)
@@ -41,7 +27,7 @@ func main() {
 			Name:        "Reddit",
 			Url:         "https://www.reddit.com",
 			Selector:    "a.title",
-			ConvertFunc: RedditConverter,
+			ConvertFunc: paperboy.RedditConverter,
 		},
 	}
 
