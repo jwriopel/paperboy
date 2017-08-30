@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/fatih/color"
 	"github.com/jwriopel/paperboy"
 	"log"
 	"time"
@@ -20,6 +21,11 @@ func main() {
 			Selector:    "a.title",
 			ConvertFunc: paperboy.RedditConverter,
 		},
+	}
+
+	colors := make(map[string]color.Attribute)
+	for i, source := range sources {
+		colors[source.Name] = color.Attribute((i + 1) + 30)
 	}
 
 	seenItems := make(map[string]paperboy.Item)
@@ -48,7 +54,9 @@ func main() {
 	getItems()
 	for {
 		for item := range ichan {
+			color.Set(colors[item.SourceName])
 			log.Printf("%s - [%s] %s\n", item.Title, item.SourceName, item.Url)
+			color.Unset()
 		}
 	}
 }
