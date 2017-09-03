@@ -6,9 +6,9 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/fatih/color"
+	"github.com/jwriopel/commands"
 	"github.com/jwriopel/paperboy"
 	"io"
-	"joe/commands"
 	"os"
 	"strings"
 )
