@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"joe/commands"
+	"github.com/jwriopel/commands"
 	"strings"
 )
 

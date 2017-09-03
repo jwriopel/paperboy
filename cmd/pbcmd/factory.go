@@ -6,8 +6,8 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/jwriopel/commands"
 	"github.com/jwriopel/paperboy"
-	"joe/commands"
 	"os"
 	"time"
 )
@@ -69,6 +69,9 @@ func statusCommand(b *paperboy.Bot) (c *commands.Command) {
 			if b.NPending() > 0 {
 				fmt.Printf("%d unread items.\n", b.NPending())
 			}
+			if b.IsRunning() {
+				fmt.Println("Bot is running.")
+			}
 		},
 	}
 	return
@@ -105,7 +108,7 @@ func streamCommand(b *paperboy.Bot) *commands.Command {
 			if !b.IsRunning() {
 				b.Start(quit)
 			}
-			fmt.Prinln("Press any key to stop streaming.")
+			fmt.Println("Press any key to stop streaming.")
 			_, _ = reader.ReadString('\n')
 			quit <- true
 		}()
