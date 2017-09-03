@@ -89,7 +89,7 @@ func (b *Bot) Search(sterm string) []Item {
 	b.mux.Lock()
 
 	matches := make([]Item, 0)
-	for _, item := range b.unreadItems {
+	for _, item := range b.sentItems {
 		if strings.Contains(strings.ToLower(item.Title), strings.ToLower(sterm)) {
 			matches = append(matches, item)
 		}

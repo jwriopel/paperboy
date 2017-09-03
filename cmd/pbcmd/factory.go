@@ -9,6 +9,7 @@ import (
 	"github.com/jwriopel/commands"
 	"github.com/jwriopel/paperboy"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -127,5 +128,31 @@ func streamCommand(b *paperboy.Bot) *commands.Command {
 
 	}
 
+	return c
+}
+
+func searchCommand(b *paperboy.Bot) *commands.Command {
+
+	c := &commands.Command{
+		Name:  "search",
+		Short: "Search cache for items by title.",
+		Usage: "search <search term>",
+	}
+
+	c.Run = func(cmd *commands.Command, args []string) {
+		c.Flags.Parse(args)
+		args = c.Flags.Args()
+
+		if len(args) == 0 {
+			fmt.Fprintf(os.Stderr, c.Usage)
+			return
+		}
+		sterm := strings.Join(args, " ")
+		fmt.Printf("searching '%s'\n", sterm)
+		results := b.Search(sterm)
+		for _, result := range results {
+			printItem(result)
+		}
+	}
 	return c
 }
