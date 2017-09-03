@@ -48,6 +48,7 @@ func main() {
 	commands.Add(statusCommand(bot))
 	commands.Add(showCommand(bot))
 	commands.Add(streamCommand(bot))
+	commands.Add(searchCommand(bot))
 
 	cmdReader := bufio.NewReader(os.Stdin)
 	for {
