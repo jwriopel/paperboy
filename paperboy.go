@@ -33,7 +33,7 @@ type Source struct {
 func attributeMap(node *html.Node) (attrs map[string]string) {
 	attrs = make(map[string]string)
 	for _, attr := range node.Attr {
-		attrs[strings.ToLower(attr.Key)] = strings.ToLower(attr.Val)
+		attrs[strings.ToLower(attr.Key)] = attr.Val
 	}
 	return
 }
