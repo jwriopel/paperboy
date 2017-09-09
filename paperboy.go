@@ -5,12 +5,13 @@ package paperboy
 import (
 	"errors"
 	"fmt"
-	"github.com/andybalholm/cascadia"
-	"github.com/google/logger"
-	"golang.org/x/net/html"
 	"net/http"
 	"strings"
 	"sync"
+
+	"github.com/andybalholm/cascadia"
+	"github.com/google/logger"
+	"golang.org/x/net/html"
 )
 
 // Represents a news item.
@@ -33,7 +34,7 @@ type Source struct {
 func attributeMap(node *html.Node) (attrs map[string]string) {
 	attrs = make(map[string]string)
 	for _, attr := range node.Attr {
-		attrs[strings.ToLower(attr.Key)] = strings.ToLower(attr.Val)
+		attrs[strings.ToLower(attr.Key)] = attr.Val
 	}
 	return
 }
