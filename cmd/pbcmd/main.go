@@ -15,9 +15,9 @@ import (
 
 func printItem(item paperboy.Item) {
 	green := color.New(color.FgGreen).SprintfFunc()
-	yellow := color.New(color.FgYellow).SprintfFunc()
+	yellow := color.New(color.FgCyan).SprintfFunc()
 
-	fmt.Printf("%s - %s\n", green(item.Title), yellow(item.Url))
+	fmt.Printf("[%s] %s - %s\n", item.SourceName, green(item.Title), yellow(item.Url))
 }
 
 func buildBot() *paperboy.Bot {
@@ -49,6 +49,8 @@ func main() {
 	commands.Add(showCommand(bot))
 	commands.Add(streamCommand(bot))
 	commands.Add(searchCommand(bot))
+	commands.Add(saveCommand(bot))
+	commands.Add(loadCommand(bot))
 
 	cmdReader := bufio.NewReader(os.Stdin)
 	for {
@@ -56,7 +58,7 @@ func main() {
 			fmt.Print("* ")
 		}
 		fmt.Print("pbcmd> ")
-		inline, err := cmdReader.ReadString('\n')
+		commandLine, err := cmdReader.ReadString('\n')
 		if err != nil {
 			if err == io.EOF {
 				fmt.Println("bye")
@@ -65,29 +67,17 @@ func main() {
 			panic(err)
 		}
 
-		if inline == "" || inline == "\n" {
+		if commandLine == "" || commandLine == "\n" {
 			continue
 		}
 
-		parts := strings.Split(strings.Trim(inline, " \n"), " ")
-
-		reqCmd := parts[0]
-		fmt.Printf("(%s)\n", reqCmd)
-		if reqCmd == "exit" {
+		if strings.HasPrefix(commandLine, "exit ") {
 			break
 		}
 
-		cmd := commands.Get(reqCmd)
-		if cmd == nil {
-			fmt.Printf("Unknown command: %s\n", reqCmd)
-			continue
+		err = commands.Run(commandLine)
+		if err != nil {
+			fmt.Printf("error: %s\n", err.Error())
 		}
-
-		cmd.Flags.Usage = func() {
-			fmt.Fprintf(os.Stderr, cmd.Usage)
-			cmd.Flags.PrintDefaults()
-		}
-		cmd.Flags.Parse(parts[1:])
-		cmd.Run(cmd, cmd.Flags.Args())
 	}
 }

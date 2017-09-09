@@ -1,6 +1,9 @@
 package paperboy
 
 import (
+	"encoding/json"
+	"io"
+	"io/ioutil"
 	"strings"
 	"sync"
 	"time"
@@ -106,4 +109,43 @@ func (b *Bot) NPending() int {
 
 func (b *Bot) IsRunning() bool {
 	return b.running
+}
+
+// Dump all items to w encoded to json.
+func (b *Bot) Dump(w io.Writer) error {
+	b.mux.Lock()
+	defer b.mux.Unlock()
+
+	encodedItems, err := json.Marshal(b.sentItems)
+	if err != nil {
+		return err
+	}
+
+	_, err = w.Write(encodedItems)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Load will import items from r into the bot's memory.
+func (b *Bot) Load(r io.Reader) error {
+	b.mux.Lock()
+	defer b.mux.Unlock()
+
+	ibytes, err := ioutil.ReadAll(r)
+	if err != nil {
+		return err
+	}
+
+	tmpMap := make(map[string]Item)
+	err = json.Unmarshal(ibytes, &tmpMap)
+	if err != nil {
+		return err
+	}
+
+	for key, val := range tmpMap {
+		b.sentItems[key] = val
+	}
+	return nil
 }

@@ -5,12 +5,13 @@ package paperboy
 import (
 	"errors"
 	"fmt"
-	"github.com/andybalholm/cascadia"
-	"github.com/google/logger"
-	"golang.org/x/net/html"
 	"net/http"
 	"strings"
 	"sync"
+
+	"github.com/andybalholm/cascadia"
+	"github.com/google/logger"
+	"golang.org/x/net/html"
 )
 
 // Represents a news item.
