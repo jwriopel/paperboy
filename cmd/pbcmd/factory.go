@@ -91,19 +91,37 @@ func showCommand(b *paperboy.Bot) *commands.Command {
 	}
 }
 
+func validSource(name string, b *paperboy.Bot) bool {
+	for _, source := range b.Sources {
+		if source.Name == name {
+			return true
+		}
+	}
+	return false
+}
+
 // streamCommand is a command that will stream items to the stdout, until
 // the user presses any key.
 func streamCommand(b *paperboy.Bot) *commands.Command {
+
 	c := &commands.Command{
 		Name:  "stream",
 		Short: "Stream new items to stdout, like tail -f.",
 		Usage: "stream",
 	}
 
-	c.Run = func(*commands.Command, []string) {
+	var sourceFilter string
+	c.Flags.StringVar(&sourceFilter, "source", "", "Only show items from a single source.")
+
+	c.Run = func(c *commands.Command, args []string) {
 		quit := make(chan bool)
 		poller := time.Tick(time.Duration(10) * time.Second)
 		reader := bufio.NewReader(os.Stdin)
+
+		if sourceFilter != "" && !validSource(sourceFilter, b) {
+			fmt.Fprintf(os.Stderr, "Invalid source: %s\n", sourceFilter)
+			return
+		}
 
 		go func() {
 			if !b.IsRunning() {
@@ -118,10 +136,19 @@ func streamCommand(b *paperboy.Bot) *commands.Command {
 			select {
 			case <-quit:
 				close(quit)
+				// reset
+				sourceFilter = ""
 				return
 			case <-poller:
 				for _, item := range b.Unread() {
-					printItem(item)
+					if sourceFilter == "" {
+						printItem(item)
+					}
+
+					if sourceFilter != "" && item.SourceName == sourceFilter {
+						printItem(item)
+					}
+
 				}
 			}
 		}
@@ -144,15 +171,74 @@ func searchCommand(b *paperboy.Bot) *commands.Command {
 		args = c.Flags.Args()
 
 		if len(args) == 0 {
-			fmt.Fprintf(os.Stderr, c.Usage)
+			c.Flags.Usage()
 			return
 		}
+
 		sterm := strings.Join(args, " ")
-		fmt.Printf("searching '%s'\n", sterm)
 		results := b.Search(sterm)
 		for _, result := range results {
 			printItem(result)
 		}
 	}
+	return c
+}
+
+// saveCommand will create a commands.Command that is used to save the read
+// items to a json file. This can be loaded and added to the Bot's memory.
+func saveCommand(b *paperboy.Bot) *commands.Command {
+	c := &commands.Command{
+		Name:  "save",
+		Short: "Save read items to a disk.",
+		Usage: "save <path>",
+	}
+
+	c.Run = func(command *commands.Command, args []string) {
+		if len(args) == 0 {
+			c.Flags.Usage()
+			return
+		}
+
+		dfile, err := os.Create(args[0])
+		if err != nil {
+			panic(err)
+		}
+		defer dfile.Close()
+
+		err = b.Dump(dfile)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+		}
+	}
+
+	return c
+}
+
+func loadCommand(b *paperboy.Bot) *commands.Command {
+
+	c := &commands.Command{
+		Name:  "load",
+		Short: "Load items saved items from a file.",
+		Usage: "load <path>",
+	}
+
+	c.Run = func(command *commands.Command, args []string) {
+		if len(args) == 0 {
+			c.Flags.Usage()
+			return
+		}
+
+		ifile, err := os.Open(args[0])
+		if err != nil {
+			panic(err)
+		}
+		defer ifile.Close()
+
+		err = b.Load(ifile)
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	return c
 }
