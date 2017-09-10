@@ -17,20 +17,20 @@ func printItem(item paperboy.Item) {
 	green := color.New(color.FgGreen).SprintfFunc()
 	yellow := color.New(color.FgCyan).SprintfFunc()
 
-	fmt.Printf("[%s] %s - %s\n", item.SourceName, green(item.Title), yellow(item.Url))
+	fmt.Printf("[%s] %s - %s\n", item.SourceName, green(item.Title), yellow(item.URL))
 }
 
 func buildBot() *paperboy.Bot {
 	sources := []paperboy.Source{
 		paperboy.Source{
 			Name:        "HackerNews",
-			Url:         "https://news.ycombinator.com",
+			URL:         "https://news.ycombinator.com",
 			Selector:    ".storylink",
 			ConvertFunc: paperboy.AnchorConverter,
 		},
 		paperboy.Source{
 			Name:        "Reddit",
-			Url:         "https://www.reddit.com",
+			URL:         "https://www.reddit.com",
 			Selector:    "a.title",
 			ConvertFunc: paperboy.RedditConverter,
 		},

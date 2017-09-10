@@ -3,15 +3,13 @@ package paperboy
 // The paperboy package is can be used to get news Items from various news Sources.
 
 import (
-	"errors"
 	"fmt"
-	"net/http"
-	"strings"
-	"sync"
-
 	"github.com/andybalholm/cascadia"
 	"github.com/google/logger"
 	"golang.org/x/net/html"
+	"net/http"
+	"strings"
+	"sync"
 )
 
 // Item represents a news article.
