@@ -19,13 +19,13 @@ func main() {
 	sources := []paperboy.Source{
 		paperboy.Source{
 			Name:        "HackerNews",
-			Url:         "https://news.ycombinator.com",
+			URL:         "https://news.ycombinator.com",
 			Selector:    ".storylink",
 			ConvertFunc: paperboy.AnchorConverter,
 		},
 		paperboy.Source{
 			Name:        "Reddit",
-			Url:         "https://www.reddit.com",
+			URL:         "https://www.reddit.com",
 			Selector:    "a.title",
 			ConvertFunc: paperboy.RedditConverter,
 		},
@@ -68,7 +68,7 @@ func main() {
 		}
 
 		for _, result := range results {
-			rmsg += fmt.Sprintf("%s\n%s\n", result.Title, result.Url)
+			rmsg += fmt.Sprintf("%s\n%s\n", result.Title, result.URL)
 		}
 		return rmsg
 	}
@@ -99,9 +99,9 @@ func main() {
 		}
 
 		for _, item := range items {
-			if _, seen := sentItems[item.Url]; !seen {
-				sourceMsg += fmt.Sprintf("%s\n%s\n", item.Title, item.Url)
-				sentItems[item.Url] = item
+			if _, seen := sentItems[item.URL]; !seen {
+				sourceMsg += fmt.Sprintf("%s\n%s\n", item.Title, item.URL)
+				sentItems[item.URL] = item
 			}
 		}
 		return sourceMsg
