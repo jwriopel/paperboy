@@ -14,12 +14,12 @@ import (
 type responseStatement struct {
 	Ok    bool         `json:"ok"`
 	Error string       `json:"error"`
-	Url   string       `json:"url"`
+	URL   string       `json:"url"`
 	Self  responseSelf `json:"self"`
 }
 
 type responseSelf struct {
-	Id string `json:"id"`
+	ID string `json:"id"`
 }
 
 // StartRTM creates a session with Slack's Real Time Messaging API.
@@ -49,13 +49,14 @@ func StartRTM() (wsurl, id string) {
 		logger.Fatalf("Slack error: %s", respObj.Error)
 	}
 
-	wsurl = respObj.Url
-	id = respObj.Self.Id
+	wsurl = respObj.URL
+	id = respObj.Self.ID
 	return
 }
 
+// Message is used to send/receive messages to/from Slack.
 type Message struct {
-	Id      uint64 `json:"id"`
+	ID      uint64 `json:"id"`
 	Type    string `json:"type"`
 	Channel string `json:"channel"`
 	Text    string `json:"text"`
@@ -71,6 +72,6 @@ var counter uint64
 
 // PostMessage sends a message back to Slack.
 func PostMessage(ws *websocket.Conn, m Message) error {
-	m.Id = atomic.AddUint64(&counter, 1)
+	m.ID = atomic.AddUint64(&counter, 1)
 	return websocket.JSON.Send(ws, m)
 }

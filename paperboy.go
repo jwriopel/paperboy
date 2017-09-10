@@ -14,17 +14,17 @@ import (
 	"golang.org/x/net/html"
 )
 
-// Represents a news item.
+// Item represents a news article.
 type Item struct {
 	Title      string
-	Url        string
+	URL        string
 	SourceName string
 }
 
 // Source is a web site that paperboy will get news Items from.
 type Source struct {
 	Name        string
-	Url         string
+	URL         string
 	Selector    string
 	ConvertFunc func(matches []*html.Node) []Item
 }
@@ -39,14 +39,15 @@ func attributeMap(node *html.Node) (attrs map[string]string) {
 	return
 }
 
-// AnchorConvereter converts matched anchor tag Nodes to a slice of Item.
+// AnchorConverter will convert a anchor tag to an item, using the href
+// attribute as the URL and the first child element's data as the Title.
 func AnchorConverter(matches []*html.Node) []Item {
 	items := make([]Item, 0)
 	for _, match := range matches {
 		attrs := attributeMap(match)
 		item := Item{}
 		item.Title = match.FirstChild.Data
-		item.Url = attrs["href"]
+		item.URL = attrs["href"]
 		items = append(items, item)
 	}
 	return items
@@ -56,7 +57,7 @@ func AnchorConverter(matches []*html.Node) []Item {
 // response's body, if the response code is 200.
 func GetItems(source Source) ([]Item, error) {
 
-	req, err := http.NewRequest("GET", source.Url, nil)
+	req, err := http.NewRequest("GET", source.URL, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -71,7 +72,7 @@ func GetItems(source Source) ([]Item, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return nil, errors.New(fmt.Sprintf("Unexpected response code (%d) from: %s\n", resp.StatusCode, source.Url))
+		return nil, fmt.Errorf("unexpected response code (%d) from: %s", resp.StatusCode, source.URL)
 	}
 
 	docNode, err := html.Parse(resp.Body)

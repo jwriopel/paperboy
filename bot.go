@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// Bot is used to collect items, store items, and search for items.
 type Bot struct {
 	unreadItems   map[string]Item
 	sentItems     map[string]Item
@@ -18,6 +19,7 @@ type Bot struct {
 	running       bool
 }
 
+// NewBot creates a Bot instance with the default settings.
 func NewBot(sources []Source) *Bot {
 	return &Bot{
 		unreadItems:   make(map[string]Item),
@@ -27,14 +29,14 @@ func NewBot(sources []Source) *Bot {
 	}
 }
 
-// Start causes the Bot to start polling for news Items.
+// Start causes the Bot to start polling all sources for items.
 func (b *Bot) Start(stop chan bool) {
 
 	getItems := func() {
 		for item := range GetAll(b.Sources) {
-			if _, seen := b.sentItems[item.Url]; !seen {
+			if _, seen := b.sentItems[item.URL]; !seen {
 				b.mux.Lock()
-				b.unreadItems[item.Url] = item
+				b.unreadItems[item.URL] = item
 				b.mux.Unlock()
 			}
 		}
@@ -71,14 +73,14 @@ func (b *Bot) Flush() {
 	b.mux.Unlock()
 }
 
-// GetUnread will return a list of unread items and flush the pending items
+// Unread will return a list of unread items and flush the pending items
 // cache.
 func (b *Bot) Unread() []Item {
 	b.mux.Lock()
 
 	items := make([]Item, 0)
 	for _, item := range b.unreadItems {
-		b.sentItems[item.Url] = item
+		b.sentItems[item.URL] = item
 		items = append(items, item)
 	}
 
@@ -88,6 +90,8 @@ func (b *Bot) Unread() []Item {
 	return items
 }
 
+// Search will look through the bots cache of read items for items with a
+// Title that contain sterm.
 func (b *Bot) Search(sterm string) []Item {
 	b.mux.Lock()
 
@@ -101,17 +105,20 @@ func (b *Bot) Search(sterm string) []Item {
 	return matches
 }
 
+// NPending returns the number of unread items.
 func (b *Bot) NPending() int {
 	b.mux.Lock()
 	defer b.mux.Unlock()
 	return len(b.unreadItems)
 }
 
+// IsRunning is used to determine if the bot has been started and in its
+// polling loop.
 func (b *Bot) IsRunning() bool {
 	return b.running
 }
 
-// Dump all items to w encoded to json.
+// Dump all items to w encoded as json.
 func (b *Bot) Dump(w io.Writer) error {
 	b.mux.Lock()
 	defer b.mux.Unlock()

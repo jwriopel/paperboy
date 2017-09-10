@@ -10,8 +10,8 @@ func RedditConverter(matches []*html.Node) []Item {
 	cleanedItems := make([]Item, 0)
 	items := AnchorConverter(matches)
 	for _, item := range items {
-		if !strings.HasPrefix(item.Url, "http") {
-			item.Url = "https://reddit.com" + item.Url
+		if !strings.HasPrefix(item.URL, "http") {
+			item.URL = "https://reddit.com" + item.URL
 		}
 		cleanedItems = append(cleanedItems, item)
 	}
