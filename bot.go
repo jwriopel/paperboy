@@ -156,3 +156,22 @@ func (b *Bot) Load(r io.Reader) error {
 	}
 	return nil
 }
+
+func (b *Bot) DumpAll(w io.Writer) error {
+	items := make([]Item, 0, 20)
+	for _, item := range b.sentItems {
+		items = append(items, item)
+	}
+
+	for _, item := range b.unreadItems {
+		items = append(items, item)
+	}
+
+	encoded, err := json.Marshal(items)
+	if err != nil {
+		return err
+	}
+
+	w.Write(encoded)
+	return nil
+}
