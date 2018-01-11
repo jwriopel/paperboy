@@ -6,11 +6,12 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/jwriopel/commands"
-	"github.com/jwriopel/paperboy"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/jwriopel/commands"
+	"github.com/jwriopel/paperboy"
 )
 
 func startCommand(b *paperboy.Bot, stopper chan bool) *commands.Command {
@@ -35,9 +36,15 @@ func stopCommand(b *paperboy.Bot, stopper chan bool) *commands.Command {
 		Short: "Command the bot to stop polling.",
 		Usage: "stop",
 		Run: func(*commands.Command, []string) {
-			fmt.Print("Stopping...")
-			stopper <- true
-			fmt.Println("done.")
+
+			switch b.IsRunning() {
+			case true:
+				fmt.Print("Stopping...")
+				stopper <- true
+				fmt.Println("done.")
+			case false:
+				fmt.Println("bot isn't running.")
+			}
 		},
 	}
 }
